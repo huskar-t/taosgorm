@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	db, err := gorm.Open(taosgorm.Open("root:taosdata@/tcp(127.0.0.1:6030)"))
+	db, err := gorm.Open(taosgorm.Open("root:taosdata@/tcp(127.0.0.1:6030)/"))
 	if err != nil {
 		panic(err)
 	}
