@@ -6,6 +6,7 @@ import (
 	"fmt"
 	_ "github.com/taosdata/driver-go/taosSql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/callbacks"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/migrator"
@@ -37,6 +38,9 @@ func (dialect Dialect) Initialize(db *gorm.DB) (err error) {
 	db.DisableNestedTransaction = true
 	db.DisableAutomaticPing = true
 	db.DisableForeignKeyConstraintWhenMigrating = true
+	callbacks.RegisterDefaultCallbacks(db, &callbacks.Config{
+		LastInsertIDReversed: true,
+	})
 	if dialect.Conn != nil {
 		db.ConnPool = dialect.Conn
 	} else {
