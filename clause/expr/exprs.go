@@ -1,4 +1,4 @@
-package clause
+package expr
 
 import "gorm.io/gorm/clause"
 

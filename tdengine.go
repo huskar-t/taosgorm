@@ -40,6 +40,8 @@ func (dialect Dialect) Initialize(db *gorm.DB) (err error) {
 	db.DisableForeignKeyConstraintWhenMigrating = true
 	callbacks.RegisterDefaultCallbacks(db, &callbacks.Config{
 		LastInsertIDReversed: true,
+		QueryClauses:         []string{"SELECT", "FROM", "WHERE", "INTERVAL", "FILL", "GROUP BY", "ORDER BY", "SLIMIT", "LIMIT"},
+		CreateClauses:        []string{"CREATE TABLE", "INSERT", "USING", "VALUES", "ON CONFLICT"},
 	})
 	if dialect.Conn != nil {
 		db.ConnPool = dialect.Conn
