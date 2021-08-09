@@ -15,7 +15,7 @@ func TestSetInterval(t *testing.T) {
 		results = []struct {
 			Clauses []clause.Interface
 			Result  []string
-			Vars    [][]interface{}
+			Vars    [][][]interface{}
 		}{
 			{
 				Clauses: []clause.Interface{
@@ -24,7 +24,7 @@ func TestSetInterval(t *testing.T) {
 					window.SetInterval(window.Duration{Value: 10, Unit: window.Minute}),
 				},
 				Result: []string{"SELECT t_1.avg(value) FROM t_1 INTERVAL(10m)"},
-				Vars:   [][]interface{}{},
+				Vars:   nil,
 			},
 		}
 	)
@@ -40,7 +40,7 @@ func TestSetStateWindow(t *testing.T) {
 		results = []struct {
 			Clauses []clause.Interface
 			Result  []string
-			Vars    [][]interface{}
+			Vars    [][][]interface{}
 		}{
 			{
 				Clauses: []clause.Interface{
@@ -65,7 +65,7 @@ func TestSetSessionWindow(t *testing.T) {
 		results = []struct {
 			Clauses []clause.Interface
 			Result  []string
-			Vars    [][]interface{}
+			Vars    [][][]interface{}
 		}{
 			{
 				Clauses: []clause.Interface{
@@ -93,7 +93,7 @@ func TestSetOffset(t *testing.T) {
 		results = []struct {
 			Clauses []clause.Interface
 			Result  []string
-			Vars    [][]interface{}
+			Vars    [][][]interface{}
 		}{
 			{
 				Clauses: []clause.Interface{
@@ -105,7 +105,7 @@ func TestSetOffset(t *testing.T) {
 					}),
 				},
 				Result: []string{"SELECT t_1.avg(value) FROM t_1 INTERVAL(10m,5m)"},
-				Vars:   [][]interface{}{},
+				Vars:   nil,
 			},
 		}
 	)
@@ -121,7 +121,7 @@ func TestSetSliding(t *testing.T) {
 		results = []struct {
 			Clauses []clause.Interface
 			Result  []string
-			Vars    [][]interface{}
+			Vars    [][][]interface{}
 		}{
 			{
 				Clauses: []clause.Interface{
@@ -136,7 +136,7 @@ func TestSetSliding(t *testing.T) {
 					}),
 				},
 				Result: []string{"SELECT t_1.avg(value) FROM t_1 INTERVAL(10m,5m) SLIDING(2m)"},
-				Vars:   [][]interface{}{},
+				Vars:   nil,
 			},
 		}
 	)
@@ -162,7 +162,7 @@ func TestNewDurationFromTimeDuration(t *testing.T) {
 		results = []struct {
 			Clauses []clause.Interface
 			Result  []string
-			Vars    [][]interface{}
+			Vars    [][][]interface{}
 		}{
 			{
 				Clauses: []clause.Interface{
@@ -171,7 +171,7 @@ func TestNewDurationFromTimeDuration(t *testing.T) {
 					window.SetInterval(*duration5Min),
 				},
 				Result: []string{"SELECT t_1.avg(value) FROM t_1 INTERVAL(300000000u)"},
-				Vars:   [][]interface{}{},
+				Vars:   nil,
 			},
 		}
 	)
@@ -208,7 +208,7 @@ func TestParseDuration(t *testing.T) {
 		results = []struct {
 			Clauses []clause.Interface
 			Result  []string
-			Vars    [][]interface{}
+			Vars    [][][]interface{}
 		}{
 			{
 				Clauses: []clause.Interface{
@@ -217,7 +217,7 @@ func TestParseDuration(t *testing.T) {
 					window.SetInterval(*duration5Min),
 				},
 				Result: []string{"SELECT t_1.avg(value) FROM t_1 INTERVAL(5m)"},
-				Vars:   [][]interface{}{},
+				Vars:   nil,
 			},
 		}
 	)

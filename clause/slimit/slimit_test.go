@@ -54,7 +54,7 @@ func TestSLimit(t *testing.T) {
 
 	for idx, result := range results {
 		t.Run(fmt.Sprintf("case #%v", idx), func(t *testing.T) {
-			tests.CheckBuildClauses(t, result.Clauses, []string{result.Result}, [][]interface{}{result.Vars})
+			tests.CheckBuildClauses(t, result.Clauses, []string{result.Result}, [][][]interface{}{{result.Vars}})
 		})
 	}
 }

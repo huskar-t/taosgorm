@@ -4,12 +4,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type Clause struct {
+type Using struct {
 	sTable   string
 	tagParis map[string]interface{}
 }
 
-func (i Clause) Build(builder clause.Builder) {
+func (i Using) Build(builder clause.Builder) {
 	builder.WriteString("USING ")
 	builder.WriteString(i.sTable)
 	var tagNameList = make([]string, 0, len(i.tagParis))
@@ -23,23 +23,23 @@ func (i Clause) Build(builder clause.Builder) {
 	builder.AddVar(builder, tagValueList)
 }
 
-func SetUsing(sTable string, tags map[string]interface{}) Clause {
-	return Clause{
+func SetUsing(sTable string, tags map[string]interface{}) Using {
+	return Using{
 		sTable:   sTable,
 		tagParis: tags,
 	}
 }
 
-func (i Clause) ADDTagPair(tagName string, tagValue interface{}) Clause {
+func (i Using) ADDTagPair(tagName string, tagValue interface{}) Using {
 	i.tagParis[tagName] = tagValue
 	return i
 }
 
-func (i Clause) Name() string {
+func (i Using) Name() string {
 	return "USING"
 }
 
-func (i Clause) MergeClause(c *clause.Clause) {
+func (i Using) MergeClause(c *clause.Clause) {
 	c.Name = ""
 	c.Expression = i
 }

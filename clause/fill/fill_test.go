@@ -15,7 +15,7 @@ func TestSetValue(t *testing.T) {
 		results = []struct {
 			Clauses []clause.Interface
 			Result  []string
-			Vars    [][]interface{}
+			Vars    [][][]interface{}
 		}{
 			{
 				Clauses: []clause.Interface{
@@ -25,7 +25,7 @@ func TestSetValue(t *testing.T) {
 					fill.SetFill(fill.FillValue).SetValue(12),
 				},
 				Result: []string{"SELECT t_1.avg(value) FROM t_1 INTERVAL(10m) FILL (VALUE,12)"},
-				Vars:   [][]interface{}{},
+				Vars:   nil,
 			},
 		}
 	)

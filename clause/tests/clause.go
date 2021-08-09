@@ -13,7 +13,7 @@ import (
 
 var db, _ = gorm.Open(DummyDialector{}, nil)
 
-func CheckBuildClauses(t *testing.T, clauses []clause.Interface, results []string, vars [][]interface{}) {
+func CheckBuildClauses(t *testing.T, clauses []clause.Interface, results []string, vars [][][]interface{}) {
 	var (
 		buildNames    []string
 		buildNamesMap = map[string]bool{}
@@ -36,10 +36,21 @@ func CheckBuildClauses(t *testing.T, clauses []clause.Interface, results []strin
 	for i, result := range results {
 		if sql == result {
 			matched = true
-			if len(vars) > i {
-				if !reflect.DeepEqual(stmt.Vars, vars[i]) {
-					t.Errorf("Vars expects %+v got %v", stmt.Vars[i], vars)
+			matchVars := false
+			if len(stmt.Vars) > 0 {
+				if len(vars) > i {
+					for _, varItem := range vars[i] {
+						if reflect.DeepEqual(stmt.Vars, varItem) {
+							matchVars = true
+							break
+						}
+					}
 				}
+			} else {
+				matchVars = true
+			}
+			if !matchVars {
+				t.Errorf("Vars expects %+v got %v", stmt.Vars, vars[i])
 			}
 			break
 		}

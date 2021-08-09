@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-type Clause struct {
+type CreateTable struct {
 	tables []*Table
 }
 
@@ -25,6 +25,7 @@ type Table struct {
 	TagColumn   []*Column
 }
 
+// NewTable Create new common table
 func NewTable(name string, ifNotExist bool, column []*Column, Stable string, tags map[string]interface{}) *Table {
 	return &Table{
 		TableType:   CommonTableType,
@@ -36,21 +37,24 @@ func NewTable(name string, ifNotExist bool, column []*Column, Stable string, tag
 	}
 }
 
-func NewStable(name string, ifNotExist bool, column []*Column, tagColumn []*Column) *Table {
+// NewSTable Create new STable
+func NewSTable(name string, ifNotExists bool, column []*Column, tagColumn []*Column) *Table {
 	return &Table{
 		TableType:   STableType,
 		Table:       name,
-		IfNotExists: ifNotExist,
+		IfNotExists: ifNotExists,
 		Column:      column,
 		TagColumn:   tagColumn,
 	}
 }
 
-func CreateTable(tables []*Table) Clause {
-	return Clause{tables: tables}
+// CreateTable Create table clause
+func NewCreateTableClause(tables []*Table) CreateTable {
+	return CreateTable{tables: tables}
 }
 
-func (c Clause) AddTables(tables ...*Table) Clause {
+// AddTables Add tables to clause
+func (c CreateTable) AddTables(tables ...*Table) CreateTable {
 	c.tables = append(c.tables, tables...)
 	return c
 }
@@ -87,11 +91,11 @@ func (c *Column) toSql() string {
 	return b.String()
 }
 
-func (Clause) Name() string {
+func (CreateTable) Name() string {
 	return "CREATE TABLE"
 }
 
-func (c Clause) Build(builder clause.Builder) {
+func (c CreateTable) Build(builder clause.Builder) {
 	for _, table := range c.tables {
 		switch table.TableType {
 		case CommonTableType:
@@ -102,7 +106,7 @@ func (c Clause) Build(builder clause.Builder) {
 			return
 		}
 		if table.IfNotExists {
-			builder.WriteString("IF NOT EXIST ")
+			builder.WriteString("IF NOT EXISTS ")
 		}
 		builder.WriteString(table.Table)
 		if table.TableType == CommonTableType && table.STable != "" {
@@ -121,15 +125,16 @@ func (c Clause) Build(builder clause.Builder) {
 			}
 			builder.WriteString(") TAGS ")
 			builder.AddVar(builder, tagValueList)
-		}
-		builder.WriteString(" (")
-		for i, column := range table.Column {
-			builder.WriteString(column.toSql())
-			if i != len(table.Column)-1 {
-				builder.WriteByte(',')
+		} else {
+			builder.WriteString(" (")
+			for i, column := range table.Column {
+				builder.WriteString(column.toSql())
+				if i != len(table.Column)-1 {
+					builder.WriteByte(',')
+				}
 			}
+			builder.WriteByte(')')
 		}
-		builder.WriteByte(')')
 		if table.TableType == STableType {
 			builder.WriteString(" TAGS(")
 			for i, tags := range table.TagColumn {
@@ -143,8 +148,8 @@ func (c Clause) Build(builder clause.Builder) {
 	}
 }
 
-// MergeClause merge order by clauses
-func (c Clause) MergeClause(clause *clause.Clause) {
+// MergeClause merge CREATE TABLE by clauses
+func (c CreateTable) MergeClause(clause *clause.Clause) {
 	clause.Name = ""
 	clause.Expression = c
 }

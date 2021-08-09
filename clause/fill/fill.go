@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type Clause struct {
+type Fill struct {
 	value    float64
 	fillType Type
 }
@@ -20,7 +20,8 @@ const (
 	FillNext   Type = "NEXT"
 )
 
-func (f Clause) Build(builder clause.Builder) {
+// Build [FILL(fill_mod_and_val)]
+func (f Fill) Build(builder clause.Builder) {
 	builder.WriteString("(")
 	builder.WriteString(string(f.fillType))
 	if f.fillType == FillValue {
@@ -30,23 +31,21 @@ func (f Clause) Build(builder clause.Builder) {
 	builder.WriteByte(')')
 }
 
-//[FILL(fill_mod_and_val)]
-
-func (f Clause) Name() string {
+func (f Fill) Name() string {
 	return "FILL"
 }
 
-func (f Clause) MergeClause(c *clause.Clause) {
+func (f Fill) MergeClause(c *clause.Clause) {
 	c.Expression = f
 }
 
-func SetFill(fillType Type) Clause {
-	return Clause{
+func SetFill(fillType Type) Fill {
+	return Fill{
 		fillType: fillType,
 	}
 }
 
-func (f Clause) SetValue(value float64) Clause {
+func (f Fill) SetValue(value float64) Fill {
 	f.value = value
 	return f
 }

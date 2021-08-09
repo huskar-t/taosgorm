@@ -15,7 +15,7 @@ const (
 //[STATE_WINDOW(col)]
 //[INTERVAL(interval_val [, interval_offset]) [SLIDING sliding_val]]
 
-type Clause struct {
+type Window struct {
 	windowType  int
 	tsColumn    string
 	stateColumn string
@@ -24,32 +24,32 @@ type Clause struct {
 	sliding     *Duration
 }
 
-func SetSessionWindow(tsColumn string, duration Duration) Clause {
-	return Clause{windowType: SESSION, tsColumn: tsColumn, duration: &duration}
+func SetSessionWindow(tsColumn string, duration Duration) Window {
+	return Window{windowType: SESSION, tsColumn: tsColumn, duration: &duration}
 }
 
-func SetStateWindow(column string) Clause {
-	return Clause{windowType: STATE, stateColumn: column}
+func SetStateWindow(column string) Window {
+	return Window{windowType: STATE, stateColumn: column}
 }
 
-func SetInterval(duration Duration) Clause {
-	return Clause{windowType: INTERVAL, duration: &duration}
+func SetInterval(duration Duration) Window {
+	return Window{windowType: INTERVAL, duration: &duration}
 }
 
-func (sc Clause) SetOffset(offset Duration) Clause {
+func (sc Window) SetOffset(offset Duration) Window {
 	if sc.windowType == INTERVAL {
 		sc.offset = &offset
 	}
 	return sc
 }
-func (sc Clause) SetSliding(sliding Duration) Clause {
+func (sc Window) SetSliding(sliding Duration) Window {
 	if sc.windowType == INTERVAL {
 		sc.sliding = &sliding
 	}
 	return sc
 }
 
-func (sc Clause) Build(builder clause.Builder) {
+func (sc Window) Build(builder clause.Builder) {
 	switch sc.windowType {
 	case SESSION:
 		builder.WriteString("SESSION(")
@@ -81,11 +81,11 @@ func (sc Clause) Build(builder clause.Builder) {
 	}
 }
 
-func (sc Clause) Name() string {
+func (sc Window) Name() string {
 	return "WINDOW"
 }
 
-func (sc Clause) MergeClause(c *clause.Clause) {
+func (sc Window) MergeClause(c *clause.Clause) {
 	c.Name = ""
 	c.Expression = sc
 }

@@ -40,7 +40,7 @@ func (dialect Dialect) Initialize(db *gorm.DB) (err error) {
 	db.DisableForeignKeyConstraintWhenMigrating = true
 	callbacks.RegisterDefaultCallbacks(db, &callbacks.Config{
 		LastInsertIDReversed: true,
-		QueryClauses:         []string{"SELECT", "FROM", "WHERE", "INTERVAL", "FILL", "GROUP BY", "ORDER BY", "SLIMIT", "LIMIT"},
+		QueryClauses:         []string{"SELECT", "FROM", "WHERE", "WINDOW", "FILL", "GROUP BY", "ORDER BY", "SLIMIT", "LIMIT"},
 		CreateClauses:        []string{"CREATE TABLE", "INSERT", "USING", "VALUES", "ON CONFLICT"},
 	})
 	if dialect.Conn != nil {
@@ -51,9 +51,44 @@ func (dialect Dialect) Initialize(db *gorm.DB) (err error) {
 			return err
 		}
 	}
+	for k, v := range dialect.ClauseBuilders() {
+		db.ClauseBuilders[k] = v
+	}
 	return
 }
 
+func (dialect Dialect) ClauseBuilders() map[string]clause.ClauseBuilder {
+	return map[string]clause.ClauseBuilder{
+		"INSERT": func(c clause.Clause, builder clause.Builder) {
+			if _, ok := c.Expression.(clause.Insert); ok {
+				if stmt, ok := builder.(*gorm.Statement); ok {
+					_, containsCreateTable := stmt.Clauses["CREATE TABLE"]
+					if containsCreateTable {
+						return
+					}
+				}
+			}
+			c.Build(builder)
+		},
+		"FOR": func(c clause.Clause, builder clause.Builder) {
+			if _, ok := c.Expression.(clause.Locking); ok {
+				return
+			}
+			c.Build(builder)
+		},
+		"VALUES": func(c clause.Clause, builder clause.Builder) {
+			if _, ok := c.Expression.(clause.Values); ok {
+				if stmt, ok := builder.(*gorm.Statement); ok {
+					_, containsCreateTable := stmt.Clauses["CREATE TABLE"]
+					if containsCreateTable {
+						return
+					}
+				}
+			}
+			c.Build(builder)
+		},
+	}
+}
 func (dialect Dialect) DefaultValueOf(field *schema.Field) clause.Expression {
 	return clause.Expr{SQL: "NULL"}
 }
@@ -67,7 +102,12 @@ func (dialect Dialect) Migrator(db *gorm.DB) gorm.Migrator {
 }
 
 func (dialect Dialect) BindVarTo(writer clause.Writer, stmt *gorm.Statement, v interface{}) {
-	writer.WriteByte('?')
+	switch v.(type) {
+	case string:
+		writer.WriteString("'?'")
+	default:
+		writer.WriteByte('?')
+	}
 }
 
 func (dialect Dialect) QuoteTo(writer clause.Writer, str string) {
@@ -76,7 +116,7 @@ func (dialect Dialect) QuoteTo(writer clause.Writer, str string) {
 }
 
 func (dialect Dialect) Explain(sql string, vars ...interface{}) string {
-	return logger.ExplainSQL(sql, nil, `'`, vars...)
+	return logger.ExplainSQL(sql, nil, "'", vars...)
 }
 
 func (dialect Dialect) DataTypeOf(field *schema.Field) string {
