@@ -24,24 +24,30 @@ type Window struct {
 	sliding     *Duration
 }
 
+//SetSessionWindow create a session window [SESSION(ts_col, tol_val)]
 func SetSessionWindow(tsColumn string, duration Duration) Window {
 	return Window{windowType: SESSION, tsColumn: tsColumn, duration: &duration}
 }
 
+//SetStateWindow create a state window [STATE_WINDOW(col)]
 func SetStateWindow(column string) Window {
 	return Window{windowType: STATE, stateColumn: column}
 }
 
+//SetInterval create an interval window [INTERVAL(interval_val [, interval_offset]) [SLIDING sliding_val]]
 func SetInterval(duration Duration) Window {
 	return Window{windowType: INTERVAL, duration: &duration}
 }
 
+//SetOffset set offset to interval window
 func (sc Window) SetOffset(offset Duration) Window {
 	if sc.windowType == INTERVAL {
 		sc.offset = &offset
 	}
 	return sc
 }
+
+//SetSliding set sliding to interval window
 func (sc Window) SetSliding(sliding Duration) Window {
 	if sc.windowType == INTERVAL {
 		sc.sliding = &sliding

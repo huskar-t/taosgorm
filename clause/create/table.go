@@ -37,7 +37,7 @@ func NewTable(name string, ifNotExist bool, column []*Column, Stable string, tag
 	}
 }
 
-// NewSTable Create new STable
+// NewSTable Create new sTable
 func NewSTable(name string, ifNotExists bool, column []*Column, tagColumn []*Column) *Table {
 	return &Table{
 		TableType:   STableType,
@@ -48,7 +48,7 @@ func NewSTable(name string, ifNotExists bool, column []*Column, tagColumn []*Col
 	}
 }
 
-// CreateTable Create table clause
+// NewCreateTableClause Create table clause
 func NewCreateTableClause(tables []*Table) CreateTable {
 	return CreateTable{tables: tables}
 }

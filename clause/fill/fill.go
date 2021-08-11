@@ -39,12 +39,14 @@ func (f Fill) MergeClause(c *clause.Clause) {
 	c.Expression = f
 }
 
+//SetFill Fill clause
 func SetFill(fillType Type) Fill {
 	return Fill{
 		fillType: fillType,
 	}
 }
 
+//SetValue Set fill value
 func (f Fill) SetValue(value float64) Fill {
 	f.value = value
 	return f

@@ -11,12 +11,12 @@ type SLimit struct {
 	Offset int
 }
 
-// Name where clause name
+// Name SLIMIT clause name
 func (limit SLimit) Name() string {
 	return "SLIMIT"
 }
 
-// Build build where clause
+// Build SLIMIT clause
 func (limit SLimit) Build(builder clause.Builder) {
 	if limit.Limit > 0 {
 		builder.WriteString("SLIMIT ")
@@ -31,10 +31,9 @@ func (limit SLimit) Build(builder clause.Builder) {
 	}
 }
 
-// MergeClause merge order by clauses
+// MergeClause merge SLIMIT by clauses
 func (limit SLimit) MergeClause(clause *clause.Clause) {
 	clause.Name = ""
-
 	if v, ok := clause.Expression.(SLimit); ok {
 		if limit.Limit == 0 && v.Limit != 0 {
 			limit.Limit = v.Limit
@@ -46,6 +45,13 @@ func (limit SLimit) MergeClause(clause *clause.Clause) {
 			limit.Offset = 0
 		}
 	}
-
 	clause.Expression = limit
+}
+
+//SetSLimit SLimit clause
+func SetSLimit(limit, offset int) SLimit {
+	return SLimit{
+		Limit:  limit,
+		Offset: offset,
+	}
 }

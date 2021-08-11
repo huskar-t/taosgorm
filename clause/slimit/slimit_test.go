@@ -50,6 +50,10 @@ func TestSLimit(t *testing.T) {
 			[]clause.Interface{clause.Select{}, clause.From{}, slimit.SLimit{Limit: 10, Offset: 20}, slimit.SLimit{Offset: 30}, slimit.SLimit{Limit: 50}},
 			"SELECT * FROM users SLIMIT 50 SOFFSET 30", nil,
 		},
+		{
+			[]clause.Interface{clause.Select{}, clause.From{}, slimit.SetSLimit(10, 20), slimit.SetSLimit(0, 30), slimit.SetSLimit(50, 0)},
+			"SELECT * FROM users SLIMIT 50 SOFFSET 30", nil,
+		},
 	}
 
 	for idx, result := range results {

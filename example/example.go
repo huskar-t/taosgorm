@@ -20,25 +20,38 @@ type Data struct {
 }
 
 func main() {
+	//create database
 	createDatabase()
+	//connect to the database
 	db := connect()
+	//create a sTable
+	//CREATE STABLE IF NOT EXISTS stb_1 (ts TIMESTAMP,value DOUBLE) TAGS(tbn BINARY(64))
 	createSTable(db)
+
+	//CREATE TABLE IF NOT EXISTS tb_1 USING stb_1(tbn) TAGS ('tb_1')
 	createTableUsingStable(db)
 
 	now := time.Now()
 	randValue := rand.Float64()
+
+	//INSERT INTO tb_1 (ts,value) VALUES ('2021-08-11 09:43:00.041',0.604660)
 	insertData(db, "tb_1", now, randValue)
 	t1 := now.Add(time.Second)
 	randValue2 := rand.Float64()
+
+	//INSERT INTO tb_2 USING stb_1(''tbn'') TAGS(''tb_2'') (ts,value) VALUES ('2021-08-11 09:43:01.041',0.940509)
 	automaticTableCreationWhenInsertingData(db, "tb_2", t1, randValue2)
+	//SELECT * FROM tb_1 WHERE ts = '2021-08-11 09:43:00.041'
 	tb1Data := queryData(db, "tb_1", now)
 	if tb1Data.Value != randValue {
 		log.Fatalf("expect value %v got %v", randValue, tb1Data.Value)
 	}
+	//SELECT * FROM tb_2 WHERE ts = '2021-08-11 09:43:01.041'
 	tb2Data := queryData(db, "tb_2", t1)
 	if tb2Data.Value != randValue2 {
 		log.Fatalf("expect value %v got %v", randValue, tb2Data.Value)
 	}
+	//SELECT * FROM stb_1 WHERE ts = '2021-08-11 09:43:00.041'
 	stbData := queryData(db, "stb_1", now)
 	if stbData.Value != randValue {
 		log.Fatalf("expect value %v got %v", randValue, stbData.Value)
@@ -49,6 +62,8 @@ func main() {
 	v1 := 11
 	v2 := 12
 	v3 := 13
+
+	//INSERT INTO tb_aggregate USING stb_1(''tbn'') TAGS(''tb_aggregate'') (ts,value) VALUES ('2021-08-11 09:43:01.041',11),('2021-08-11 09:43:02.041',12),('2021-08-11 09:43:03.041',13)
 	automaticTableCreationWhenInsertingMultiData(db, "tb_aggregate", []map[string]interface{}{
 		{
 			"ts":    t1,
@@ -62,6 +77,7 @@ func main() {
 		},
 	})
 	//aggregate query
+	//SELECT avg(value) as v FROM tb_aggregate WHERE ts >= '2021-08-11 09:43:01.041' and ts <= '2021-08-11 09:43:03.041'
 	resultAvg := aggregateQuery(db, "tb_aggregate", "avg(value) as v", t1, t3, nil)
 	expectAvg := []map[string]interface{}{
 		{
@@ -75,6 +91,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//SELECT max(value) as v FROM tb_aggregate WHERE ts >= '2021-08-11 09:43:01.041' and ts <= '2021-08-11 09:43:04.041' INTERVAL(1000000u) FILL (NULL)
 	resultWindowMax := aggregateQuery(db, "tb_aggregate", "max(value) as v", t1, t4, []clause.Expression{
 		window.SetInterval(*windowD),
 		fill.SetFill(fill.FillNull),

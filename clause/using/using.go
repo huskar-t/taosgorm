@@ -23,6 +23,7 @@ func (i Using) Build(builder clause.Builder) {
 	builder.AddVar(builder, tagValueList)
 }
 
+//SetUsing Using clause
 func SetUsing(sTable string, tags map[string]interface{}) Using {
 	return Using{
 		sTable:   sTable,
@@ -30,6 +31,7 @@ func SetUsing(sTable string, tags map[string]interface{}) Using {
 	}
 }
 
+//ADDTagPair add tag pair to using clause
 func (i Using) ADDTagPair(tagName string, tagValue interface{}) Using {
 	i.tagParis[tagName] = tagValue
 	return i
